@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Kebabik</string>
+    <string name="action_settings">Ustawienia</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="map">Mapa</string>
+    <string name="title_activity_check">CheckActivity</string>
+    <string name="perm">Please enable GPS and Internet Connection</string>
+    <string name="done">Done!</string>
+    <string name="doIt">Just do it!</string>
+</resources>

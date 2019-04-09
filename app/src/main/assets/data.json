@@ -1,0 +1,51 @@
+{
+  "places": [
+    {
+      "title": "Kraszkebab",
+      "address": "https://maps.googleapis.com/maps/api/place/textsearch/json?query=123+main+street&location=42.3675294,-71.186966&radius=10000&key=AIzaSyCOkvY7386iSM3pDVAELtHOPZRDgKluUHo",
+      "openTime": "11:00-24:00"
+    },
+
+    {
+      "title": "Donerkebab",
+      "address": "Poznan Wrocłąwska 81",
+      "openTime": "11:00-24:00"
+    },
+
+    {
+      "title": "Najlepszy Kebabiks",
+      "address": "Poznan Rajewskiego 76",
+      "openTime": "11:00-24:00"
+    },
+
+    {
+      "title": "Pali2Razy",
+      "address": "Poznan pl. Wielkopolski 4",
+      "openTime": "11:00-24:00"
+    },
+
+    {
+      "title": "Kebs",
+      "address": "Poznan Polanka 11",
+      "openTime": "11:00-24:00"
+    },
+
+    {
+      "title": "Berlin Kebap",
+      "address": "Poznan Głogowska 161",
+      "openTime": "11:00-24:00"
+    },
+
+    {
+      "title": "ZjecTu",
+      "address": "Poznan Jasna 11",
+      "openTime": "11:00-17:00"
+    },
+
+    {
+      "title": "RynekKebab",
+      "address": "Poznan Wierzbięcice 28",
+      "openTime": "11:00-24:00"
+    }
+  ]
+}
