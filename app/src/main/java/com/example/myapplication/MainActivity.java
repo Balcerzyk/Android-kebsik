@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     String URL_DATA;
     int searchDistance = 1000;
+    Location location = null;
 
     boolean mLocationPermissionGranted = false;
 
@@ -98,10 +99,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.mapButton:
-                        Intent intentMap = new Intent(MainActivity.this, MapsActivity.class);
-                        intentMap.putStringArrayListExtra("names", names);
-                        intentMap.putStringArrayListExtra("addresses", addresses);
-                        startActivity(intentMap);
+                        if(location != null) {
+                            Intent intentMap = new Intent(MainActivity.this, MapsActivity.class);
+                            intentMap.putStringArrayListExtra("names", names);
+                            intentMap.putStringArrayListExtra("addresses", addresses);
+                            startActivity(intentMap);
+                        }
+                        else Toast.makeText(getApplicationContext(), "Check your internet connection and GPS", Toast.LENGTH_SHORT).show();
                         break;
                     default:
                         break;
@@ -114,9 +118,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void setLink() {
         getLocationPermission();
-        Location location = null;
+
         location = getLocation();
-        URL_DATA = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + Double.toString(location.getLatitude()) + "," + Double.toString(location.getLongitude()) + "&radius=" + searchDistance + "&type=restaurant&keyword=kebap&key=AIzaSyCeqtVQj1BrhCyNWb4esPOzop43lc5fYIY";
+        if(location != null) URL_DATA = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + Double.toString(location.getLatitude()) + "," + Double.toString(location.getLongitude()) + "&radius=" + searchDistance + "&type=restaurant&keyword=kebap&key=AIzaSyCeqtVQj1BrhCyNWb4esPOzop43lc5fYIY";
+        else URL_DATA = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=52.404252,16.949703&radius=" + searchDistance + "&type=restaurant&keyword=kebap&key=AIzaSyCeqtVQj1BrhCyNWb4esPOzop43lc5fYIY";
+        // if something wrong
+
         loadRecyclerViewData();
     }
 
@@ -136,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject pl = places.getJSONObject(i);
                         ListItem item = new ListItem(
                                 pl.getString("name"),
-                                pl.getString("vicinity"), //"1", "1"
+                                pl.getString("vicinity"),
                                 isOpenFun(pl.getString("opening_hours")),
                                 ""
                         );
@@ -148,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
                     RecyclerView.Adapter adapter = new ListAdapter(listItems, getApplicationContext());
                     recyclerView.setAdapter(adapter);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -165,10 +173,6 @@ public class MainActivity extends AppCompatActivity {
 
         RequestQueue rQueue = Volley.newRequestQueue(MainActivity.this);
         rQueue.add(request);
-
-        RecyclerView.Adapter adapter = new ListAdapter(listItems, getApplicationContext());
-        recyclerView.setAdapter(adapter);
-
     }
 
     public String isOpenFun(String isOpen) {
