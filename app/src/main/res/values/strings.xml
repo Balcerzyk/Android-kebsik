@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">Kebabik</string>
-    <string name="action_settings">Ustawienia</string>
+    <string name="action_settings">Promień poszukiwań</string>
     <string name="title_activity_maps">Map</string>
     <string name="map">Mapa</string>
     <string name="title_activity_check">CheckActivity</string>
     <string name="perm">Please enable GPS and Internet Connection</string>
     <string name="done">Done!</string>
     <string name="doIt">Just do it!</string>
+    <string name="km1">1 km</string>
+    <string name="km2">2 km</string>
+    <string name="km3">3 km</string>
 </resources>

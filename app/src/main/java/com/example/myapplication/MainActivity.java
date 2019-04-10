@@ -17,6 +17,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -26,9 +27,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,6 +34,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
     String URL_DATA;
+    int searchDistance = 1000;
+
+    boolean mLocationPermissionGranted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
 
         setButtonsClickListener();
 
-        if (checkPermissions()) setLink();
+        if (checkPermissions()) {
+            setLink();
+        }
 
 
     }
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == 1) {
-            if(resultCode == CheckActivity.RESULT_OK){
+            if (resultCode == CheckActivity.RESULT_OK) {
                 setLink();
             }
         }
@@ -108,22 +112,12 @@ public class MainActivity extends AppCompatActivity {
         mapButton.setOnClickListener(myClickListener);
     }
 
-    private void setLink(){
+    private void setLink() {
         getLocationPermission();
-        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            URL_DATA = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + Double.toString(location.getLatitude()) + "," + Double.toString(location.getLongitude()) + "&radius=1000&type=restaurant&keyword=kebap&key=AIzaSyCeqtVQj1BrhCyNWb4esPOzop43lc5fYIY";
-                            loadRecyclerViewData();
-                        }
-                    }
-                });
+        Location location = null;
+        location = getLocation();
+        URL_DATA = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + Double.toString(location.getLatitude()) + "," + Double.toString(location.getLongitude()) + "&radius=" + searchDistance + "&type=restaurant&keyword=kebap&key=AIzaSyCeqtVQj1BrhCyNWb4esPOzop43lc5fYIY";
+        loadRecyclerViewData();
     }
 
     private void loadRecyclerViewData() {
@@ -144,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                                 pl.getString("name"),
                                 pl.getString("vicinity"), //"1", "1"
                                 isOpenFun(pl.getString("opening_hours")),
-                                "h"
+                                ""
                         );
                         listItems.add(item);
                         names.add(pl.getString("name"));
@@ -186,9 +180,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkPermissions(){
-        final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) || !isNetworkAvailable()) {
+    private boolean checkPermissions() {
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER) || !isNetworkAvailable()) {
             Intent intentCheck = new Intent(MainActivity.this, CheckActivity.class);
             startActivityForResult(intentCheck, 1);
             return false;
@@ -203,17 +197,56 @@ public class MainActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void getLocationPermission(){
+    private void getLocationPermission() {
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION};
 
-        if(ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            if(ContextCompat.checkSelfPermission(this.getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            }else{
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(), FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this.getApplicationContext(), COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionGranted = true;
+            } else {
                 ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST_CODE);
             }
-        }else{
+        } else {
             ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
+
+    public Location getLocation() {Button but = findViewById(R.id.mapButton);
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager != null) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return null;
+            }
+            Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnownLocationGPS != null) {
+                return lastKnownLocationGPS;
+            } else {
+                Location loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+                return loc;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public void distance(MenuItem item) {
+        listItems.clear();
+        names.clear();
+        addresses.clear();
+
+        switch (item.getItemId()) {
+            case R.id.km1:
+                searchDistance = 1000;
+                break;
+            case R.id.km2:
+                searchDistance = 2000;
+                break;
+            case R.id.km3:
+                searchDistance = 3000;
+            default:
+        }
+        setLink();
+    }
+
 }
