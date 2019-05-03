@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -153,14 +154,11 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
-                    RecyclerView.Adapter adapter = new ListAdapter(listItems, getApplicationContext());
-                    recyclerView.setAdapter(adapter);
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                dialog.dismiss();
+
             }
 
         }, new Response.ErrorListener() {
@@ -173,6 +171,21 @@ public class MainActivity extends AppCompatActivity {
 
         RequestQueue rQueue = Volley.newRequestQueue(MainActivity.this);
         rQueue.add(request);
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                RecyclerView.Adapter adapter = new ListAdapter(listItems, getApplicationContext());
+                recyclerView.setAdapter(adapter);
+                dialog.dismiss();
+
+            }
+        }, 3000);
+
+
+
     }
 
     public String isOpenFun(String isOpen) {
